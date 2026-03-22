@@ -28,8 +28,9 @@ typedef struct dict
     int32 rehashing;
 } dict;
 
+
 dict *dict_create(void);
 int dict_add(dict *d, char *key, char *value);
 dict_entry *dict_find(dict *d, const char *key);
-
+dict_entry *
 #endif

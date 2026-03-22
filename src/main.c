@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <sys/socket.h>
-#include <inttypes.h>
+#include <my_ints.h>
 #include <netinet/in.h>
 /*
     fds são como uma porta de comunicação com o kernel, que por escolha de design dos sistemas UNIX, é utilizado para interagir com diversos processos como se fossem FILES (Everything is a file).
@@ -14,12 +14,12 @@
 
 typedef struct in_address
 {
-    uint32_t s_address;
+    uint32 s_address;
 };
 typedef struct sockaddr_in
 {
-    uint16_t sin_family;
-    uint16_t sin_port;
+    uint16 sin_family;
+    uint16 sin_port;
     struct in_address sin_address;
 };
 
