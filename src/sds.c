@@ -121,6 +121,16 @@ void sds_to_upper(sds string)
 }
 int sds_cmp(const sds string1, const sds string2)
 {
+    size_t length = sds_len (string1);
+    if (sds_len (string1) != sds_len (string2)){
+        return 0;
+    }
+    for (int i = 0; i < length; i++){
+        if (string1[i] != string2[i]){
+            return 0;
+        }
+    }
+    return 1;
 }
 void sds_clear(sds string)
 {
@@ -145,7 +155,10 @@ sds sds_copy(sds dest, const sds src)
 }
 sds cat(sds s, const char *t)
 {
-
+    int s_length = sds_len (s);
+    int t_length = sds_len (t);
+    make_room_for(s, s_length + t_length);
+    sds_append (s,t);
 }
 int main()
 {
