@@ -27,35 +27,28 @@ sds make_room_for(sds source, size_t needed)
 {
     struct sds_header *sh = get_header(source);
     size_t required = needed;
-
-    if (sh->free < required)
+    if (sh->free >= needed)
     {
-        size_t new_len = sh->len + needed;
-
-        size_t new_cap = sh->len + sh->free;
-        if (new_cap == 0)
-        {
-            new_cap = required;
-        }
-        while (new_cap < new_len)
-        {
-            if (new_cap < 1024 * 1024)
-            {
-                new_cap *= 2;
-            }
-            else
-            {
-            }
-        }
-        struct sds_header *new_sh = realloc(sh, sizeof(*sh) + new_cap);
-        if (new_sh == NULL)
-        {
-            return NULL;
-        }
-        new_sh->free = new_cap - new_sh->len;
-        sh = new_sh;
+        return source;
     }
-    return sh->buf;
+    size_t curr_len = sh->len;
+    size_t new_len = curr_len + needed;
+    size_t new_cap;
+
+    if (new_len < 1024 * 1024)
+    {
+        new_cap = new_len * 2;
+    }
+    else
+    {
+        new_cap = new_len + 1024 * 1024;
+    }
+    struct sds_header *new_sh = realloc(sh, sizeof (*new_sh) + new_cap);
+    if (new_sh == NULL){
+        return NULL;
+    }
+    new_sh->free = new_cap - curr_len;
+    return new_sh->buf;
 }
 void sds_free(sds string)
 {
@@ -84,7 +77,7 @@ void sds_append(sds string, sds to_be_appended)
     }
     size_t counter = 0;
     for (size_t i = string_length - 1; i < required; i++)
-    {   
+    {
         string[i] = to_be_appended[counter];
         counter++;
     }

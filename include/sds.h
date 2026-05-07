@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#define LINEAR_SIZE 1024
 typedef char* sds;
 typedef struct sds_header
 {
@@ -19,7 +20,7 @@ struct sds_header *get_header (sds string);
 sds make_room_for (sds source, uint64 needed);
 void sds_free (sds string);
 void set_sds_len (sds string);
-uint64 sds_len(const sds string);
+size_t sds_len(const sds string);
 char sds_data (const sds string);
 void sds_append(sds string, sds to_be_appended);
 char get_at (const sds string, uint64 index);
