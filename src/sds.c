@@ -4,7 +4,7 @@ sds sdsnew(const char *str)
 {
     return sds_from(str, strlen(str));
 }
-sds sds_from(const char *str, uint64 len)
+sds sds_from(const char *str, size_t len)
 {
     struct sds_header *sh = malloc(sizeof(struct sds_header) + len + 1);
     if (sh == NULL)
@@ -23,28 +23,33 @@ struct sds_header *get_header(sds string)
 {
     return (struct sds_header *)((char *)string - sizeof(struct sds_header));
 }
-sds make_room_for(sds source, uint64 needed)
+sds make_room_for(sds source, size_t needed)
 {
     struct sds_header *sh = get_header(source);
     size_t required = needed;
 
-    if (sh->free < required){
+    if (sh->free < required)
+    {
         size_t new_len = sh->len + needed;
 
         size_t new_cap = sh->len + sh->free;
-        if (new_cap == 0) {
+        if (new_cap == 0)
+        {
             new_cap = required;
         }
-        while (new_cap < new_len){
-            if (new_cap < 1024 * 1024){
-                    new_cap *= 2;
-            }    
-            else{
-
+        while (new_cap < new_len)
+        {
+            if (new_cap < 1024 * 1024)
+            {
+                new_cap *= 2;
+            }
+            else
+            {
             }
         }
-        struct sds_header *new_sh = realloc (sh, sizeof (*sh) + new_cap);
-        if (new_sh == NULL){
+        struct sds_header *new_sh = realloc(sh, sizeof(*sh) + new_cap);
+        if (new_sh == NULL)
+        {
             return NULL;
         }
         new_sh->free = new_cap - new_sh->len;
@@ -58,34 +63,34 @@ void sds_free(sds string)
         return;
     struct sds_header *sh = get_header(string);
     free(sh);
+    free(string);
 }
 void set_sds_len(sds string)
 {
 }
-uint64 sds_len(const sds string)
+size_t sds_len(const sds string)
 {
     struct sds_header *ptr = get_header(string);
     return ptr->len;
 }
 void sds_append(sds string, sds to_be_appended)
 {
-    uint64 original_string_size = sds_len(string);
-    uint64 to_be_added_size = sds_len(to_be_appended);
-    struct sds_header *ptr = get_header(string);
-    if (original_string_size < to_be_added_size)
+    size_t string_length = sds_len(string);
+    size_t to_add = sds_len(to_be_appended);
+    size_t required = string_length + to_add;
+    if (string_length < required)
     {
-        make_room_for(string, to_be_added_size);
+        make_room_for(string, to_add);
     }
-
-    int counter = 0;
-    for (int i = original_string_size - 1; i < original_string_size + to_be_added_size; i++)
-    {
+    size_t counter = 0;
+    for (size_t i = string_length - 1; i < required; i++)
+    {   
         string[i] = to_be_appended[counter];
         counter++;
     }
     return;
 }
-char get_at(const sds string, uint64 index)
+char get_at(const sds string, size_t index)
 {
     if (index > (sds_len(string) - 1))
     {
@@ -94,13 +99,13 @@ char get_at(const sds string, uint64 index)
     }
     return string[index];
 }
-int sds_set(sds string, const void *data, uint64 len_needed)
+int sds_set(sds string, const void *data, size_t len_needed)
 {
 }
 void sds_to_lower(sds string)
 {
-    uint64 length = sds_len(string);
-    for (int i = 0; i < length; i++)
+    size_t length = sds_len(string);
+    for (size_t i = 0; i < length; i++)
     {
         if (string[i] >= 'A' && string[i] <= 'Z')
         {
@@ -110,8 +115,8 @@ void sds_to_lower(sds string)
 }
 void sds_to_upper(sds string)
 {
-    uint64 length = sds_len(string);
-    for (int i = 0; i < length; i++)
+    size_t length = sds_len(string);
+    for (size_t i = 0; i < length; i++)
     {
         if (string[i] >= 'a' && string[i] <= 'z')
         {
@@ -121,12 +126,15 @@ void sds_to_upper(sds string)
 }
 int sds_cmp(const sds string1, const sds string2)
 {
-    size_t length = sds_len (string1);
-    if (sds_len (string1) != sds_len (string2)){
+    size_t length = sds_len(string1);
+    if (sds_len(string1) != sds_len(string2))
+    {
         return 0;
     }
-    for (int i = 0; i < length; i++){
-        if (string1[i] != string2[i]){
+    for (size_t i = 0; i < length; i++)
+    {
+        if (string1[i] != string2[i])
+        {
             return 0;
         }
     }
@@ -134,31 +142,31 @@ int sds_cmp(const sds string1, const sds string2)
 }
 void sds_clear(sds string)
 {
-    uint64 length = sds_len(string);
-    for (int i = 0; i < length; i++)
-    {
-        string[i] = " ";
-    }
+    size_t length = sds_len(string);
+    memset(string, 0, length);
+    struct sds_header *sh = get_header(string);
+    sh->free = length;
+    sh->len = 0;
+    string[0] = '\0';
 }
 sds sds_copy(sds dest, const sds src)
 {
-    int src_length = sds_len(src);
-    int dest_length = sds_len(dest);
+    size_t src_length = sds_len(src);
+    size_t dest_length = sds_len(dest);
     if (dest_length < src_length)
     {
         perror("Destination string is too small to receive source copy.\n");
         return NULL;
     }
-    for (int i = 0; i < src_length; i++)
-    {
-    }
+    memcpy(dest, src, sizeof(src));
+    return dest;
 }
 sds cat(sds s, const char *t)
 {
-    int s_length = sds_len (s);
-    int t_length = sds_len (t);
+    size_t s_length = sds_len(s);
+    size_t t_length = sds_len(t);
     make_room_for(s, s_length + t_length);
-    sds_append (s,t);
+    sds_append(s, t);
 }
 int main()
 {
@@ -171,6 +179,8 @@ int main()
     sds_to_lower(string);
     printf("%s\n", string);
     sds new_string = sdsnew(" this is the added one!");
-    sds_append(string, new_string);
+    printf("%s\n", new_string);
+    sds_free(new_string);
+    printf("%s\n", new_string);
     return 0;
 }
