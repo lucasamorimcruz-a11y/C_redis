@@ -67,14 +67,16 @@ void exists_function(char **argv, int argc)
         printf("Missing command.\n");
         return;
     }
-    int ok = 1;
     if (strcmp(argv[0], "EXISTS") == 0)
     {
         for (int index = 1; index < argc; index++)
         {
             if (!(dict_find(argv[index])))
             {
-                ok = 0;
+                printf("Couldn't find %s\n", argv[index]);
+            }
+            else{
+                printf("1");
             }
         }
     }
@@ -94,7 +96,7 @@ void del_function(char **argv, int argc)
     {
         for (int index = 1; index < argc; index++)
         {
-            dict_del(argv[index]);
+            dict_delete(argv[index]);
         }
         /*
         TO DO -> adicionar a lógica do server / armazenamento.

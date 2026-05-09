@@ -14,8 +14,8 @@ typedef struct  {
 } Item;     
 
 void dict_set (char *key, char *val);
-void dict_find (char *key);
-
+int dict_find (char *key);
+void dict_delete (char *key);
 
 
 #endif

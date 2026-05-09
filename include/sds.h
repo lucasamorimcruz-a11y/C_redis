@@ -9,8 +9,8 @@
 typedef char* sds;
 typedef struct sds_header
 {
-    uint64 len;
-    uint64 free;
+    size_t len;
+    size_t free;
     char buf[];
 } sds_header;
 
