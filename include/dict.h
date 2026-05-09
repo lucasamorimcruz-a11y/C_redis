@@ -7,4 +7,16 @@
 #define DICT_INVALID 1
 
 
+
+typedef struct  {
+    int key;
+    char * info;
+} Item;     
+
+void dict_set (char *key, char *val);
+
+void dict_find (char *key);
+
+
+
 #endif

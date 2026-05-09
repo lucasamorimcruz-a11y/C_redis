@@ -35,13 +35,13 @@ sds make_room_for(sds source, size_t needed)
     size_t new_len = curr_len + needed;
     size_t new_cap;
 
-    if (new_len < 1024 * 1024)
+    if (new_len < LINEAR_SIZE * LINEAR_SIZE)
     {
         new_cap = new_len * 2;
     }
     else
     {
-        new_cap = new_len + 1024 * 1024;
+        new_cap = new_len + LINEAR_SIZE * LINEAR_SIZE;
     }
     struct sds_header *new_sh = realloc(sh, sizeof (*new_sh) + new_cap);
     if (new_sh == NULL){
@@ -60,6 +60,9 @@ void sds_free(sds string)
 }
 void set_sds_len(sds string)
 {
+    struct sds_header *sh = get_header(string);
+    sh->len = strlen (sh->buf);
+    return;
 }
 size_t sds_len(const sds string)
 {
