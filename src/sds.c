@@ -43,8 +43,9 @@ sds make_room_for(sds source, size_t needed)
     {
         new_cap = new_len + LINEAR_SIZE * LINEAR_SIZE;
     }
-    struct sds_header *new_sh = realloc(sh, sizeof (*new_sh) + new_cap);
-    if (new_sh == NULL){
+    struct sds_header *new_sh = realloc(sh, sizeof(*new_sh) + new_cap);
+    if (new_sh == NULL)
+    {
         return NULL;
     }
     new_sh->free = new_cap - curr_len;
@@ -56,12 +57,11 @@ void sds_free(sds string)
         return;
     struct sds_header *sh = get_header(string);
     free(sh);
-    free(string);
 }
 void set_sds_len(sds string)
 {
     struct sds_header *sh = get_header(string);
-    sh->len = strlen (sh->buf);
+    sh->len = strlen(sh->buf);
     return;
 }
 size_t sds_len(const sds string)
@@ -97,6 +97,13 @@ char get_at(const sds string, size_t index)
 }
 int sds_set(sds string, const void *data, size_t len_needed)
 {
+    struct sds_header *sh = get_header(string);
+    size_t length = sh->len;
+    if (length < len_needed)
+    {
+        make_room_for(string, len_needed);
+    }
+    return 1;
 }
 void sds_to_lower(sds string)
 {
@@ -161,22 +168,43 @@ sds cat(sds s, const char *t)
 {
     size_t s_length = sds_len(s);
     size_t t_length = sds_len(t);
+
     make_room_for(s, s_length + t_length);
     sds_append(s, t);
 }
+sds sds_remove_free_space(sds string)
+{
+}
+size_t sds_capacitiy(sds string)
+{
+}
+sds sds_range(sds string, size_t start, size_t end)
+{
+}
+sds sdsdup(sds string)
+{
+    struct sds_header *sh = get_header(string);
+    size_t total_size = sizeof(struct sds_header) + sh->len + 1;
+    struct sds_header *new_sh = malloc(total_size);
+    if (new_sh == NULL)
+    {
+        perror("Erro");
+    }
+    memcpy(new_sh, sh, total_size);
+    return (sds)new_sh->buf;
+}
 int main()
 {
-    printf("Teste\n");
+    printf("Teste:\n");
     sds string = sdsnew("Hello there!");
-    int len = sds_len(string);
-    printf("%d\n", len);
-    strlen(string);
-    printf("%s\n", string);
+    size_t len = sds_len(string);
+    printf("%zu\n", len);
     sds_to_lower(string);
     printf("%s\n", string);
     sds new_string = sdsnew(" this is the added one!");
     printf("%s\n", new_string);
-    sds_free(new_string);
-    printf("%s\n", new_string);
+    sds_append(string, new_string);
+    printf("%s\n", string);
+
     return 0;
 }

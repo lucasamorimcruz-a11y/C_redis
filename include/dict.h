@@ -6,16 +6,14 @@
 #define DICT_VALID 0
 #define DICT_INVALID 1
 
-
-
-typedef struct  {
-    int key;
-    char * info;
-} Item;     
+typedef struct {
+    char *key;
+} Item;
 
 void dict_set (char *key, char *val);
 int dict_find (char *key);
 void dict_delete (char *key);
+void find_pattern(char *pattern);
 
 
 #endif

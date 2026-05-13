@@ -31,6 +31,9 @@ int sds_cmp(const sds string1, const sds string2);
 void sds_clear (sds string);
 sds sds_copy (sds dest, const sds src);
 sds cat (sds s, const char *t);
-
+sds sds_remove_free_space (sds string);
+size_t sds_capacitiy (sds string);
+sds sds_range (sds string, size_t start, size_t end);
+sds sdsdup (sds string);
 
 #endif 
