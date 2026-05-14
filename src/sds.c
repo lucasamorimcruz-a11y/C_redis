@@ -56,7 +56,11 @@ void sds_free(sds string)
     if (string == NULL)
         return;
     struct sds_header *sh = get_header(string);
+    /*
+        ARRUMAR.
+    */
     free(sh);
+
 }
 void set_sds_len(sds string)
 {
@@ -69,7 +73,7 @@ size_t sds_len(const sds string)
     struct sds_header *ptr = get_header(string);
     return ptr->len;
 }
-void sds_append(sds string, sds to_be_appended)
+void sds_cat(sds string, sds to_be_appended)
 {
     size_t string_length = sds_len(string);
     size_t to_add = sds_len(to_be_appended);
@@ -79,11 +83,12 @@ void sds_append(sds string, sds to_be_appended)
         make_room_for(string, to_add);
     }
     size_t counter = 0;
-    for (size_t i = string_length - 1; i < required; i++)
+    for (size_t i = string_length; i < required; i++)
     {
         string[i] = to_be_appended[counter];
         counter++;
     }
+    string[required] = '\0';
     return;
 }
 char get_at(const sds string, size_t index)
@@ -161,25 +166,46 @@ sds sds_copy(sds dest, const sds src)
         perror("Destination string is too small to receive source copy.\n");
         return NULL;
     }
-    memcpy(dest, src, sizeof(src));
+    memcpy(dest, src, src_length + 1);
     return dest;
-}
-sds cat(sds s, const char *t)
-{
-    size_t s_length = sds_len(s);
-    size_t t_length = sds_len(t);
-
-    make_room_for(s, s_length + t_length);
-    sds_append(s, t);
 }
 sds sds_remove_free_space(sds string)
 {
+    struct sds_header *sh = get_header(string);
+    realloc ()
+
+    /*
+    TO DO -> FREE COM REALLOC (); 
+    */
+
+
 }
+
+
+
 size_t sds_capacitiy(sds string)
 {
+    struct sds_header *sh = get_header(string);
+    return sh->len + sh->free;
+    /*
+        TO DO -> CALCULO CORRETO DA CAPICDIADE
+    */
 }
 sds sds_range(sds string, size_t start, size_t end)
 {
+    if (start > sds_len(string) || start < 0 || end > sds_len(string) || end < 0)
+    {
+        return NULL;
+    }
+    /*
+        TO DO -> ARRANJAR FORMA QUE SEJA SEM CRIAR UMA NOVA STRING TODA HORA.
+    */
+    sds substr = sdsnew("");
+    for (size_t i = start; i < end; i++)
+    {
+        sds_append(substr, string[i]);
+    }
+    return substr;
 }
 sds sdsdup(sds string)
 {
@@ -205,6 +231,6 @@ int main()
     printf("%s\n", new_string);
     sds_append(string, new_string);
     printf("%s\n", string);
-
+    sds s = sds_range(string, 2, 5);
     return 0;
 }
